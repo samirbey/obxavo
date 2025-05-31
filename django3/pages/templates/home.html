@@ -1,0 +1,402 @@
+
+{% extends 'base.html' %}
+{% block content %}
+
+
+
+{% for post in object_list%}
+
+
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Viloyatlar va Tumanlar Ob-Havo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      min-height: 100vh;
+      padding: 30px 40px;
+      color: #222;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #0d47a1;
+      font-size: 3rem;
+      font-weight: 700;
+      user-select: none;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .regions-list, .weather-display {
+      background: #fff;
+      border-radius: 25px;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+      padding: 25px 20px;
+    }
+
+    .regions-list {
+      flex: 1 1 320px;
+      max-width: 400px;
+      overflow-y: auto;
+      height: 600px;
+    }
+
+    .regions-list h2 {
+      margin-bottom: 20px;
+      font-size: 2rem;
+      color: #0d47a1;
+      text-align: center;
+    }
+
+    .region-item {
+    position: relative;
+    background: linear-gradient(145deg, #e6f0ff, #c5d9ff);
+    margin-bottom: 18px;
+    padding: 18px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1.6rem;
+    color: #1a237e;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    user-select: none;
+    transition:
+      background-color 0.25s ease,
+      box-shadow 0.3s ease,
+      transform 0.3s ease,
+      z-index 0s linear 0.3s;
+    z-index: 1;
+  }
+
+  /* Hoverda faqat oldinga chiqish */
+  .region-item:hover:not(.active) {
+    transform: translateY(-8px) scale(1.03);
+    background: linear-gradient(145deg, #a8c1ff, #7197ff);
+    color: white;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    z-index: 10;
+    transition-delay: 0s;
+  }
+  /* Faol holat (bosilganda) */
+  .region-item.active {
+    transform: translateY(-12px) scale(1.05);
+    background: linear-gradient(145deg, #3f51b5, #1a237e);
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.3);
+    z-index: 20;
+    transition-delay: 0s;
+  }
+
+    .region-item .temp {
+      font-size: 1.2rem;
+      color: #1a237e;
+    }
+    .region-item.active .temp {
+      color: #fff;
+    }
+
+    .weather-display {
+      flex: 2 1 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      height: 600px;
+      overflow-y: auto;
+    }
+
+    .weather-box {
+      background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+      border-radius: 25px;
+      padding: 25px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .weather-box h3 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #0d47a1;
+      text-align: center;
+    }
+
+    .weather-card {
+      background: #f1f9ff;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 5px 18px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.25s ease;
+      max-width: 300px;
+      width: 100%;
+    }
+
+    .weather-card:hover {
+      transform: translateY(-6px);
+    }
+
+    .weather-card img {
+      width: 70px;
+      height: 70px;
+      margin-bottom: 10px;
+    }
+
+    .weather-card .location-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1a237e;
+    }
+
+    .weather-card .temp {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #0d47a1;
+    }
+
+    .weather-card .desc {
+      font-size: 1.2rem;
+      color: #283593;
+      text-transform: capitalize;
+    }
+
+    /* Scrollbars */
+    .regions-list::-webkit-scrollbar,
+    .weather-display::-webkit-scrollbar,
+    .weather-box::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .regions-list::-webkit-scrollbar-thumb,
+    .weather-display::-webkit-scrollbar-thumb,
+    .weather-box::-webkit-scrollbar-thumb {
+      background-color: #7197ff;
+      border-radius: 10px;
+    }
+
+    .regions-list::-webkit-scrollbar-track,
+    .weather-display::-webkit-scrollbar-track,
+    .weather-box::-webkit-scrollbar-track {
+      background-color: #dbe6ff;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+      }
+      .weather-display {
+        flex-direction: column;
+        height: auto;
+      }
+      .weather-box {
+        max-height: none;
+       
+      }
+    }
+
+    @media (max-width: 480px) {
+      .region-item {
+        font-size: 1.1rem;
+        padding: 12px 10px;
+        
+      }
+      .weather-card {
+        padding: 16px 12px;
+      }
+      .weather-card img {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1 style="margin-top: -24px;">Ob-Havo</h1>
+
+  <div class="container">
+    <!-- Viloyatlar -->
+    <div class="regions-list" id="regionList">
+      <h2>Viloyatlar</h2>
+    </div>
+
+    <!-- Ob-havo ko‘rsatish -->
+    <div class="weather-display" >
+      <div class="weather-box">
+        <h3>Viloyat ob-havo ma’lumoti</h3>
+        <div id="regionWeatherContent">
+          <p>Viloyat tanlang.</p>
+        </div>
+      </div>
+      <div class="weather-box">
+        <h3>Tumanlar ob-havo ma’lumoti</h3>
+        <div id="districtWeatherContent">
+          <p>Viloyat tanlang.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const apiKey = "f63db97527052eba973a8a88ea439e0e";
+
+  const districtsByRegion = {
+    Toshkent: ["Toshkent", "Chilonzor", "Yunusobod", "Olmazor", "Bektemir", "Mirzo Ulug‘bek", "Sergeli", "Yakkasaroy"],
+    Samarqand: ["Samarqand", "Urgut", "Kattaqo‘rg‘on", "Ishtixon", "Pastdarg‘om", "Bulung‘ur", "Payariq"],
+    Buxoro: ["Buxoro", "G‘ijduvon", "Kogon", "Vobkent", "Qorako‘l", "Olot", "Romitan"],
+    Namangan: ["Namangan", "Chortoq", "Pop", "To‘raqo‘rg‘on", "Uychi", "Yangiqo‘rg‘on"],
+    Andijon: ["Andijon", "Asaka", "Xonobod", "Qo‘rg‘ontepa", "Baliqchi", "Marhamat"],
+    "Fargʻona": ["Fargʻona", "Qo‘qon", "Marg‘ilon", "Rishton", "Quvasoy", "Oltiariq"],
+    Navoiy: ["Navoiy", "Zarafshon", "Karmana", "Konimex", "Xatirchi", "Qiziltepa", "Navbahor", "Nurota"],
+    Xorazm: ["Urganch", "Xiva", "Hazorasp", "Shovot", "Gurlan", "Bog‘ot"],
+    Jizzax: ["Jizzax", "Zomin", "G‘allaorol", "Do‘stlik", "Paxtakor", "Sharof Rashidov"],
+    Qashqadaryo: ["Qarshi", "Kitob", "Shahrisabz", "Yakkabog‘", "Kasbi", "G‘uzor", "Chiroqchi"],
+    Surxondaryo: ["Termiz", "Denov", "Sherobod", "Boysun", "Qiziriq", "Angor", "Muzrabot"],
+    Sirdaryo: ["Guliston", "Yangiyer", "Sirdaryo", "Havos", "Sayxunobod", "Boyovut"]
+  };
+
+  const regionList = document.getElementById("regionList");
+  const regionWeatherContent = document.getElementById("regionWeatherContent");
+  const districtWeatherContent = document.getElementById("districtWeatherContent");
+
+  let activeRegion = null;
+
+  function kelvinToCelsius(k) {
+    return (k - 273.15).toFixed(1);
+  }
+
+  function createRegionItem(name) {
+    const div = document.createElement("div");
+    div.classList.add("region-item");
+    div.textContent = name;
+    div.addEventListener("click", () => setActiveRegion(name));
+    return div;
+  }
+
+  async function setActiveRegion(name) {
+    activeRegion = name;
+
+    document.querySelectorAll(".region-item").forEach(item => {
+      item.classList.toggle("active", item.textContent === name);
+    });
+
+    regionWeatherContent.innerHTML = "<p>Yuklanmoqda...</p>";
+    districtWeatherContent.innerHTML = "<p>Viloyat tanlang.</p>";
+
+    try {
+      const regionWeather = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${name},UZ&appid=${apiKey}`)
+        .then(res => res.json());
+
+      if (regionWeather.cod !== 200) {
+        regionWeatherContent.innerHTML = `<p>Xatolik: ${regionWeather.message}</p>`;
+        return;
+      }
+
+      regionWeatherContent.innerHTML = `
+        <div class="weather-card">
+          <div class="location-name">${regionWeather.name}</div>
+          <img src="https://openweathermap.org/img/wn/${regionWeather.weather[0].icon}@2x.png" />
+          <div class="temp">${kelvinToCelsius(regionWeather.main.temp)}°C</div>
+          <div class="desc">${regionWeather.weather[0].description}</div>
+        </div>
+      `;
+
+      createDistrictList(name);
+    } catch (err) {
+      regionWeatherContent.innerHTML = `<p>Xatolik: ${err.message}</p>`;
+    }
+  }
+
+  function createDistrictList(regionName) {
+    districtWeatherContent.innerHTML = "";
+    const districts = districtsByRegion[regionName] || [];
+
+    if (districts.length === 0) {
+      districtWeatherContent.innerHTML = "<p>Tumanlar topilmadi.</p>";
+      return;
+    }
+
+    districts.forEach(district => {
+      const card = document.createElement("div");
+      card.className = "weather-card";
+      card.textContent = district;
+      card.style.cursor = "pointer";
+      card.addEventListener("click", () => fetchDistrictWeather(district));
+      districtWeatherContent.appendChild(card);
+    });
+  }
+
+  async function fetchDistrictWeather(district) {
+    districtWeatherContent.innerHTML = "<p>Yuklanmoqda...</p>";
+    try {
+      const distWeather = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${district},UZ&appid=${apiKey}`)
+        .then(res => res.json());
+
+      if (distWeather.cod !== 200) {
+        districtWeatherContent.innerHTML = `<p>Xatolik: ${distWeather.message}</p>`;
+        return;
+      }
+
+      districtWeatherContent.innerHTML = `
+        <div class="weather-card">
+          <div class="location-name">${distWeather.name}</div>
+          <img src="https://openweathermap.org/img/wn/${distWeather.weather[0].icon}@2x.png" />
+          <div class="temp">${kelvinToCelsius(distWeather.main.temp)}°C</div>
+          <div class="desc">${distWeather.weather[0].description}</div>
+        </div>
+      `;
+    } catch (error) {
+      districtWeatherContent.innerHTML = `<p>Xatolik: ${error.message}</p>`;
+    }
+  }
+
+  // Boshlang'ich yuklash
+  Object.keys(districtsByRegion).forEach(region => {
+    const item = createRegionItem(region);
+    regionList.appendChild(item);
+  });
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+{%endfor%}
+{% endblock content%}
